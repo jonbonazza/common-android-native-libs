@@ -1,0 +1,127 @@
+// Copyright (c) 2012 Lukas Heise (http://www.lukasheise.com)
+//
+// This file is part of FreeSLW.
+//
+// FreeSLW is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// FreeSLW is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+
+#include "OpenALListener.h"
+
+namespace openal
+{
+
+	OpenALListener::OpenALListener() : activeEnvironment(freeslw::AE_NONE)
+	{
+		SetDistanceModel(freeslw::DM_INVERSE_DISTANCE_CLAMPED);
+	}
+
+	OpenALListener::~OpenALListener()
+	{
+	}
+
+	void OpenALListener::SetPosition(float x, float y, float z)
+	{
+		float p[3] = { x, y, z };
+		alListenerfv(AL_POSITION,p);
+	}
+
+	void OpenALListener::SetPosition(const float* xyz)
+	{
+		alListenerfv(AL_POSITION,xyz);
+	}
+
+	void OpenALListener::GetPosition(float& x, float& y, float& z) const
+	{
+		float p[3];
+		alGetListenerfv(AL_POSITION,p);
+		x=p[0]; y=p[1]; z=p[2];
+	}
+
+	void OpenALListener::SetOrientation(float ax, float ay, float az, float ux, float uy, float uz)
+	{
+		float p[6] = { ax, ay, az, ux, uy, uz };
+		alListenerfv(AL_ORIENTATION,p);
+	}
+
+	void OpenALListener::SetOrientation(const float* a, const float* u)
+	{
+		float p[6] = { *a, *(a+1), *(a+2), *u, *(u+1), *(u+2) };
+		alListenerfv(AL_ORIENTATION,p);
+	}
+
+	void OpenALListener::GetOrientation(float& ax, float& ay, float& az, float& ux, float& uy, float& uz) const
+	{
+		float p[6];
+		alGetListenerfv(AL_ORIENTATION,p);
+		ax=p[0]; ay=p[1]; az=p[2];
+		ux=p[3]; uy=p[4]; uz=p[5];
+	}
+
+	void OpenALListener::SetVelocity(float x, float y, float z)
+	{
+		float p[3] = { x, y, z };
+		alListenerfv(AL_VELOCITY,p);
+	}
+
+	void OpenALListener::SetVelocity(const float* xyz)
+	{
+		alListenerfv(AL_VELOCITY,xyz);
+	}
+
+	void OpenALListener::GetVelocity(float& x, float& y, float& z) const
+	{
+		float p[3];
+		alGetListenerfv(AL_VELOCITY,p);
+		x=p[0]; y=p[1]; z=p[2];
+	}
+
+	void OpenALListener::SetDistanceModel(freeslw::distanceModel_e m)
+	{
+		if (activeDistanceModel != m)
+		{
+			activeDistanceModel = m;
+			switch (activeDistanceModel)
+			{
+				case freeslw::DM_INVERSE_DISTANCE: alDistanceModel(AL_INVERSE_DISTANCE); break;
+				case freeslw::DM_INVERSE_DISTANCE_CLAMPED: alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED); break;
+				case freeslw::DM_LINEAR_DISTANCE: alDistanceModel(AL_LINEAR_DISTANCE); break;
+				case freeslw::DM_LINEAR_DISTANCE_CLAMPED: alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED); break;
+				case freeslw::DM_EXPONENT_DISTANCE: alDistanceModel(AL_EXPONENT_DISTANCE); break;
+				case freeslw::DM_EXPONENT_DISTANCE_CLAMPED: alDistanceModel(AL_EXPONENT_DISTANCE_CLAMPED); break;
+			};
+		}
+		
+	}
+
+	freeslw::distanceModel_e OpenALListener::GetDistanceModel() const
+	{
+		return activeDistanceModel;
+	}
+
+	void OpenALListener::SetDopplerParameters(float factor, float velocity)
+	{
+		alDopplerFactor(factor);
+		alDopplerVelocity(velocity);
+	}
+
+	void OpenALListener::GetDopplerParameters(float& factor, float& velocity) const
+	{
+		factor = alGetFloat(AL_DOPPLER_FACTOR);
+		velocity = alGetFloat(AL_DOPPLER_VELOCITY);
+	}
+
+	freeslw::audioEnvironment_e OpenALListener::GetEnvironment() const
+	{
+		return activeEnvironment;
+	}
+}
